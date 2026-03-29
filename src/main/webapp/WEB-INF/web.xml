@@ -18,4 +18,31 @@
         <servlet-name>HelloServlet</servlet-name>
         <url-pattern>/api/hello</url-pattern>
     </servlet-mapping>
+    <servlet>
+    <servlet-name>StudentServlet</servlet-name>
+    <servlet-class>com.esma.webtech.servlet.StudentServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>StudentServlet</servlet-name>
+    <url-pattern>/api/student</url-pattern>
+</servlet-mapping>
+<servlet>
+    <servlet-name>SkillsServlet</servlet-name>
+    <servlet-class>com.esma.webtech.servlet.SkillsServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>SkillsServlet</servlet-name>
+    <url-pattern>/api/skills</url-pattern>
+</servlet-mapping>
+<servlet>
+    <servlet-name>ExperienceServlet</servlet-name>
+    <servlet-class>com.esma.webtech.servlet.ExperienceServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>ExperienceServlet</servlet-name>
+    <url-pattern>/api/experience</url-pattern>
+</servlet-mapping>
 </web-app>
