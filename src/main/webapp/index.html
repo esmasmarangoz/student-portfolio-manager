@@ -1,67 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Student Portfolio</title>
+    <title>Student Directory</title>
 </head>
 <body>
 
-    <h1>Student Portfolio Manager</h1>
+    <h1>Student Directory</h1>
 
-    <button onclick="loadStudent()">Load Student Info</button>
-    <button onclick="loadSkills()">Load Skills</button>
-    <button onclick="loadExperience()">Load Experience</button>
-
-    <div id="student"></div>
-
-    <h2>Skills</h2>
-    <ul id="skillsList"></ul>
-
-    <h2>Experience</h2>
-    <ul id="experienceList"></ul>
+    <div id="studentsList"></div>
 
     <script>
-        function loadStudent() {
-            fetch("http://localhost:8080/student-portfolio-manager/api/student")
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("student").innerHTML =
-                        "<p><b>Name:</b> " + data.fullName + "</p>" +
-                        "<p><b>Department:</b> " + data.department + "</p>" +
-                        "<p><b>University:</b> " + data.university + "</p>" +
-                        "<p><b>Email:</b> " + data.email + "</p>" +
-                        "<p><b>Bio:</b> " + data.bio + "</p>";
-                });
-        }
-
-        function loadSkills() {
-            fetch("http://localhost:8080/student-portfolio-manager/api/skills")
+        function loadStudents() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/students")
                 .then(res => res.json())
                 .then(data => {
                     let list = "";
 
-                    // Show each skill as a list item
-                    data.forEach(skill => {
-                        list += "<li>" + skill + "</li>";
+                    data.forEach(student => {
+                        list += `
+                            <div style="
+                                border:1px solid #ccc;
+                                padding:15px;
+                                margin:10px;
+                                border-radius:10px;
+                                width:250px;
+                                display:inline-block;
+                                cursor:pointer;
+                            ">
+                                <h3>${student.fullName}</h3>
+                                <p><b>${student.department}</b></p>
+                                <p>${student.shortBio}</p>
+                                <p><b>Main Skill:</b> ${student.mainSkill}</p>
+                            </div>
+                        `;
                     });
 
-                    document.getElementById("skillsList").innerHTML = list;
+                    document.getElementById("studentsList").innerHTML = list;
                 });
         }
 
-        function loadExperience() {
-            fetch("http://localhost:8080/student-portfolio-manager/api/experience")
-                .then(res => res.json())
-                .then(data => {
-                    let list = "";
-
-                    // Show each experience as a list item
-                    data.forEach(exp => {
-                        list += "<li>" + exp.title + " - " + exp.company + " (" + exp.year + ")</li>";
-                    });
-
-                    document.getElementById("experienceList").innerHTML = list;
-                });
-        }
+        // Sayfa açılır açılmaz çalışır
+        window.onload = loadStudents;
     </script>
 
 </body>
