@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Profile</title>
+</head>
+<body>
+
+    <h1>Student Profile</h1>
+
+    <p id="profileInfo"></p>
+
+    <script>
+        function getStudentIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("id");
+        }
+
+        function showSelectedStudentId() {
+            const studentId = getStudentIdFromUrl();
+            document.getElementById("profileInfo").innerHTML =
+                "<b>Selected student id:</b> " + studentId;
+        }
+
+        window.onload = showSelectedStudentId;
+    </script>
+
+</body>
+</html>
