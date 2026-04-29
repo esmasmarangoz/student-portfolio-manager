@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit CV</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 28px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .top-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            text-decoration: none;
+            color: #2c5cc5;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .save-btn {
+            background: #2c5cc5;
+            color: white;
+            border: none;
+            padding: 13px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: #d9534f;
+        }
+
+        .message {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: #e9f9ee;
+            color: #18743a;
+        }
+
+        .message.error {
+            display: block;
+            background: #ffeaea;
+            color: #b42318;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="top-links">
+            <a class="back-link" href="index.html">← Back to Home</a>
+            <button type="button" class="save-btn logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="card">
+            <h1>Edit CV</h1>
+            <p>Update your student profile information.</p>
+
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input id="fullName" name="fullName" type="text">
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input id="department" name="department" type="text">
+                </div>
+
+                <div class="form-group">
+                    <label for="mainSkill">Main Skill</label>
+                    <input id="mainSkill" name="mainSkill" type="text">
+                </div>
+
+                <div class="form-group">
+                    <label for="imageUrl">Image URL</label>
+                    <input id="imageUrl" name="imageUrl" type="text">
+                </div>
+
+                <div class="form-group">
+                    <label for="shortBio">Short Bio</label>
+                    <textarea id="shortBio" name="shortBio"></textarea>
+                </div>
+
+                <button type="submit" class="save-btn">Save Changes</button>
+            </form>
+
+            <div id="messageBox" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("editProfileForm");
+        const messageBox = document.getElementById("messageBox");
+
+        function logout() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/logout", {
+                method: "POST"
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("HTTP " + res.status);
+                }
+                return res.json();
+            })
+            .then(() => {
+                window.location.href = "login.html";
+            })
+            .catch((error) => {
+                alert("Logout failed: " + error);
+                console.error("Logout error:", error);
+            });
+        }
+
+        function loadMyProfileDetails() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/my-profile-detail")
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("HTTP " + res.status);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("fullName").value = data.fullName || "";
+                        document.getElementById("department").value = data.department || "";
+                        document.getElementById("mainSkill").value = data.mainSkill || "";
+                        document.getElementById("imageUrl").value = data.imageUrl || "";
+                        document.getElementById("shortBio").value = data.shortBio || "";
+                    } else {
+                        messageBox.className = "message error";
+                        messageBox.textContent = data.message || "Could not load profile.";
+                    }
+                })
+                .catch((error) => {
+                    messageBox.className = "message error";
+                    messageBox.textContent = "Failed to load profile data: " + error;
+                    console.error("Load profile error:", error);
+                });
+        }
+
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById("fullName").value.trim();
+            const department = document.getElementById("department").value.trim();
+            const mainSkill = document.getElementById("mainSkill").value.trim();
+            const imageUrl = document.getElementById("imageUrl").value.trim();
+            const shortBio = document.getElementById("shortBio").value.trim();
+
+            fetch("http://localhost:8080/student-portfolio-manager/api/update-profile", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body:
+                    "fullName=" + encodeURIComponent(fullName) +
+                    "&department=" + encodeURIComponent(department) +
+                    "&mainSkill=" + encodeURIComponent(mainSkill) +
+                    "&imageUrl=" + encodeURIComponent(imageUrl) +
+                    "&shortBio=" + encodeURIComponent(shortBio)
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("HTTP " + res.status);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    messageBox.className = "message success";
+                    messageBox.textContent = data.message;
+                } else {
+                    messageBox.className = "message error";
+                    messageBox.textContent = data.message;
+                }
+            })
+            .catch((error) => {
+                messageBox.className = "message error";
+                messageBox.textContent = "Profile update request failed: " + error;
+                console.error("Update profile error:", error);
+            });
+        });
+
+        window.onload = loadMyProfileDetails;
+    </script>
+</body>
+</html>

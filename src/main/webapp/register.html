@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Account</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eef3ff, #f8fbff);
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            border-radius: 24px;
+            padding: 42px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 34px;
+        }
+
+        .subtitle {
+            margin: 0 0 28px 0;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #cfcfcf;
+            border-radius: 12px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2c5cc5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .register-btn:hover {
+            opacity: 0.95;
+        }
+
+        .links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            text-decoration: none;
+            color: #2c5cc5;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .message {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: #e9f9ee;
+            color: #18743a;
+        }
+
+        .message.error {
+            display: block;
+            background: #ffeaea;
+            color: #b42318;
+        }
+
+        @media (max-width: 600px) {
+            .register-card {
+                padding: 28px 22px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="register-card">
+            <h1>Create Account</h1>
+            <p class="subtitle">Create your student account and start editing your profile.</p>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" type="text" placeholder="Choose a username">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" placeholder="Enter your email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" placeholder="Create a password">
+            </div>
+
+            <button class="register-btn" onclick="register()">Create Account</button>
+
+            <div id="messageBox" class="message"></div>
+
+            <div class="links">
+                <a href="login.html">Already have an account?</a>
+                <a href="index.html">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function register() {
+            const messageBox = document.getElementById("messageBox");
+
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            fetch("http://localhost:8080/student-portfolio-manager/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body:
+                    "username=" + encodeURIComponent(username) +
+                    "&email=" + encodeURIComponent(email) +
+                    "&password=" + encodeURIComponent(password)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    messageBox.className = "message success";
+                    messageBox.textContent = data.message + " Redirecting to login...";
+
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1200);
+                } else {
+                    messageBox.className = "message error";
+                    messageBox.textContent = data.message;
+                }
+            })
+            .catch(() => {
+                messageBox.className = "message error";
+                messageBox.textContent = "Register request failed.";
+            });
+        }
+    </script>
+</body>
+</html>

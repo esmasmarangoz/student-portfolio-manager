@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Student</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+
+        .page {
+            max-width: 750px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .top-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #2c5cc5;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: none;
+            overflow: hidden;
+        }
+
+        .save-btn {
+            background: #2c5cc5;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .message {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: #e9f9ee;
+            color: #18743a;
+        }
+
+        .message.error {
+            display: block;
+            background: #ffeaea;
+            color: #b42318;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="top-links">
+        <a class="back-link" href="admin.html">← Back to Admin Panel</a>
+        <button class="logout-btn" type="button" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="card">
+        <h1>Add New Student</h1>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" placeholder="Enter username">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" placeholder="Enter email">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" placeholder="Enter password">
+        </div>
+
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" placeholder="Enter full name">
+        </div>
+
+        <div class="form-group">
+            <label for="department">Department</label>
+            <input id="department" placeholder="Enter department">
+        </div>
+
+        <div class="form-group">
+            <label for="mainSkill">Main Skill</label>
+            <input id="mainSkill" placeholder="Enter main skill">
+        </div>
+
+        <div class="form-group">
+            <label for="imageUrl">Image URL</label>
+            <input id="imageUrl" placeholder="Enter image URL">
+        </div>
+
+        <div class="form-group">
+            <label for="shortBio">Short Bio</label>
+            <textarea id="shortBio" placeholder="Enter short bio" oninput="autoGrow(this)"></textarea>
+        </div>
+
+        <button class="save-btn" type="button" onclick="addStudent()">Create Student</button>
+
+        <div id="messageBox" class="message"></div>
+    </div>
+</div>
+
+<script>
+function autoGrow(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+}
+
+function logout() {
+    fetch("http://localhost:8080/student-portfolio-manager/api/logout", {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(() => {
+        window.location.href = "login.html";
+    })
+    .catch(() => {
+        alert("Logout failed.");
+    });
+}
+
+function addStudent() {
+    const messageBox = document.getElementById("messageBox");
+
+    fetch("http://localhost:8080/student-portfolio-manager/api/add-student", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body:
+            "username=" + encodeURIComponent(document.getElementById("username").value.trim()) +
+            "&email=" + encodeURIComponent(document.getElementById("email").value.trim()) +
+            "&password=" + encodeURIComponent(document.getElementById("password").value.trim()) +
+            "&fullName=" + encodeURIComponent(document.getElementById("fullName").value.trim()) +
+            "&department=" + encodeURIComponent(document.getElementById("department").value.trim()) +
+            "&mainSkill=" + encodeURIComponent(document.getElementById("mainSkill").value.trim()) +
+            "&imageUrl=" + encodeURIComponent(document.getElementById("imageUrl").value.trim()) +
+            "&shortBio=" + encodeURIComponent(document.getElementById("shortBio").value.trim())
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            messageBox.className = "message success";
+            messageBox.textContent = data.message + " Redirecting to admin panel...";
+
+            setTimeout(() => {
+                window.location.href = "admin.html";
+            }, 1000);
+        } else {
+            messageBox.className = "message error";
+            messageBox.textContent = data.message;
+        }
+    })
+    .catch(() => {
+        messageBox.className = "message error";
+        messageBox.textContent = "Add student request failed.";
+    });
+}
+</script>
+</body>
+</html>

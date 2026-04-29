@@ -9,40 +9,117 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
+    <!-- AUTH -->
     <servlet>
-        <servlet-name>HelloServlet</servlet-name>
-        <servlet-class>com.esma.webtech.servlet.HelloServlet</servlet-class>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/api/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/api/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CurrentUserServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.CurrentUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CurrentUserServlet</servlet-name>
+        <url-pattern>/api/current-user</url-pattern>
+    </servlet-mapping>
+
+    <!-- STUDENTS PUBLIC -->
+    <servlet>
+        <servlet-name>StudentsServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.StudentsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StudentsServlet</servlet-name>
+        <url-pattern>/api/students</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StudentDetailServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.StudentDetailServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StudentDetailServlet</servlet-name>
+        <url-pattern>/api/student-detail</url-pattern>
+    </servlet-mapping>
+
+    <!-- USER PROFILE -->
+    <servlet>
+        <servlet-name>MyProfileServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.MyProfileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MyProfileServlet</servlet-name>
+        <url-pattern>/api/my-profile-detail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UpdateProfileServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.UpdateProfileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateProfileServlet</servlet-name>
+        <url-pattern>/api/update-profile</url-pattern>
+    </servlet-mapping>
+
+    <!-- ADMIN -->
+    <servlet>
+        <servlet-name>AddStudentServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.AddStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddStudentServlet</servlet-name>
+        <url-pattern>/api/add-student</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DeleteStudentServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.DeleteStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DeleteStudentServlet</servlet-name>
+        <url-pattern>/api/delete-student</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminStudentDetailServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.AdminStudentDetailServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminStudentDetailServlet</servlet-name>
+        <url-pattern>/api/admin-student-detail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminUpdateStudentServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.AdminUpdateStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminUpdateStudentServlet</servlet-name>
+        <url-pattern>/api/admin-update-student</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>com.esma.webtech.servlet.RegisterServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>HelloServlet</servlet-name>
-        <url-pattern>/api/hello</url-pattern>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/api/register</url-pattern>
     </servlet-mapping>
-    <servlet>
-    <servlet-name>StudentServlet</servlet-name>
-    <servlet-class>com.esma.webtech.servlet.StudentServlet</servlet-class>
-</servlet>
 
-<servlet-mapping>
-    <servlet-name>StudentServlet</servlet-name>
-    <url-pattern>/api/student</url-pattern>
-</servlet-mapping>
-<servlet>
-    <servlet-name>SkillsServlet</servlet-name>
-    <servlet-class>com.esma.webtech.servlet.SkillsServlet</servlet-class>
-</servlet>
-
-<servlet-mapping>
-    <servlet-name>SkillsServlet</servlet-name>
-    <url-pattern>/api/skills</url-pattern>
-</servlet-mapping>
-<servlet>
-    <servlet-name>ExperienceServlet</servlet-name>
-    <servlet-class>com.esma.webtech.servlet.ExperienceServlet</servlet-class>
-</servlet>
-
-<servlet-mapping>
-    <servlet-name>ExperienceServlet</servlet-name>
-    <url-pattern>/api/experience</url-pattern>
-</servlet-mapping>
 </web-app>

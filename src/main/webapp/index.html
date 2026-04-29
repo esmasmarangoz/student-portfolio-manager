@@ -2,45 +2,426 @@
 <html>
 <head>
     <title>Student Directory</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .brand p {
+            margin: 8px 0 0 0;
+            color: #666;
+        }
+
+        .topbar-right {
+            position: relative;
+        }
+
+        .login-btn,
+        .user-btn {
+            background: #2c5cc5;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 52px;
+            right: 0;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-width: 190px;
+            overflow: hidden;
+            display: none;
+            z-index: 100;
+        }
+
+        .user-menu button {
+            width: 100%;
+            text-align: left;
+            background: white;
+            border: none;
+            padding: 14px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .user-menu button:hover {
+            background: #f2f5fb;
+        }
+
+        .hero {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .controls input,
+        .controls select {
+            padding: 12px 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+            min-width: 220px;
+        }
+
+        .section-title {
+            font-size: 26px;
+            margin: 10px 0 20px 0;
+        }
+
+        #studentsList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 280px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .student-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #ddd;
+        }
+
+        .student-content {
+            padding: 18px;
+        }
+
+        .student-content h3 {
+            margin: 0 0 10px 0;
+            font-size: 22px;
+        }
+
+        .department {
+            color: #2c5cc5;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .student-content p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .skill-badge {
+            display: inline-block;
+            margin-top: 10px;
+            background: #e9f0ff;
+            color: #2349a6;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 18px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .brand h1 {
+                font-size: 28px;
+            }
+
+            .student-card {
+                width: 100%;
+            }
+
+            .controls input,
+            .controls select {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .user-menu {
+                right: auto;
+                left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <h1>Student Directory</h1>
+    <div class="page">
+        <div class="topbar">
+            <div class="brand">
+                <h1>Student Directory</h1>
+                <p>Discover student profiles, skills, and academic interests.</p>
+            </div>
 
-    <div id="studentsList"></div>
+            <div class="topbar-right" id="topbarRight">
+                <button class="login-btn" onclick="goToLogin()">Login</button>
+            </div>
+        </div>
+
+        <div class="hero">
+            <h2>Explore Students</h2>
+            <p>Search and browse student profiles in one place.</p>
+
+            <div class="controls">
+                <input id="searchInput" type="text" placeholder="Search by name or skill" oninput="applyFilters()">
+                <select id="departmentFilter" onchange="applyFilters()">
+                    <option value="all">All Departments</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 class="section-title">Student Profiles</h2>
+        <div id="studentsList"></div>
+    </div>
 
     <script>
-        function loadStudents() {
-            fetch("http://localhost:8080/student-portfolio-manager/api/students")
-                .then(res => res.json())
-                .then(data => {
-                    let list = "";
+        let allStudents = [];
 
-                    data.forEach(student => {
-                        list += `
-                            <div style="
-                                border:1px solid #ccc;
-                                padding:15px;
-                                margin:10px;
-                                border-radius:10px;
-                                width:250px;
-                                display:inline-block;
-                                cursor:pointer;
-                            ">
-                                <h3>${student.fullName}</h3>
-                                <p><b>${student.department}</b></p>
-                                <p>${student.shortBio}</p>
-                                <p><b>Main Skill:</b> ${student.mainSkill}</p>
-                            </div>
-                        `;
-                    });
+        function populateDepartmentFilter(students) {
+    const departmentFilter = document.getElementById("departmentFilter");
 
-                    document.getElementById("studentsList").innerHTML = list;
-                });
+    const uniqueDepartments = [...new Set(
+        students
+            .map(student => student.department)
+            .filter(department => department && department.trim() !== "")
+    )];
+
+    departmentFilter.innerHTML = `<option value="all">All Departments</option>`;
+
+    uniqueDepartments.forEach(department => {
+        departmentFilter.innerHTML += `<option value="${department}">${department}</option>`;
+    });
+}
+
+        function goToLogin() {
+            window.location.href = "login.html";
         }
 
-        // Sayfa açılır açılmaz çalışır
-        window.onload = loadStudents;
+        function goToProfile(studentId) {
+            window.location.href = "profile.html?id=" + studentId;
+        }
+
+        function goToMyProfile() {
+    fetch("http://localhost:8080/student-portfolio-manager/api/my-profile-detail")
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = "profile.html?id=" + data.id;
+            } else {
+                alert(data.message || "Could not load your profile.");
+            }
+        })
+        .catch((error) => {
+            alert("My Profile failed: " + error);
+            console.error("My Profile error:", error);
+        });
+}
+
+        function goToEditCv() {
+            window.location.href = "edit-profile.html";
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById("userMenu");
+            if (menu.style.display === "block") {
+                menu.style.display = "none";
+            } else {
+                menu.style.display = "block";
+            }
+        }
+
+        function logout() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/logout", {
+                method: "POST"
+            })
+            .then(res => res.json())
+            .then(() => {
+                window.location.href = "index.html";
+            });
+        }
+
+        function loadCurrentUser() {
+    fetch("http://localhost:8080/student-portfolio-manager/api/current-user")
+        .then(res => res.json())
+        .then(data => {
+            const topbarRight = document.getElementById("topbarRight");
+
+            if (data.loggedIn) {
+                if (data.role === "admin") {
+                    topbarRight.innerHTML = `
+                        <button class="user-btn" onclick="toggleUserMenu()">
+                            ${data.username} ▾
+                        </button>
+
+                        <div class="user-menu" id="userMenu">
+                            <button onclick="goToAdmin()">Admin Panel</button>
+                            <button onclick="logout()">Logout</button>
+                        </div>
+                    `;
+                } else {
+                    topbarRight.innerHTML = `
+                        <button class="user-btn" onclick="toggleUserMenu()">
+                            ${data.username} ▾
+                        </button>
+
+                        <div class="user-menu" id="userMenu">
+                            <button onclick="goToMyProfile()">My Profile</button>
+                            <button onclick="goToEditCv()">Edit CV</button>
+                            <button onclick="logout()">Logout</button>
+                        </div>
+                    `;
+                }
+            } else {
+                topbarRight.innerHTML = `
+                    <button class="login-btn" onclick="goToLogin()">Login</button>
+                `;
+            }
+        });
+}
+
+
+       function goToAdmin() {
+           window.location.href = "admin.html";
+} 
+
+        function renderStudents(students) {
+            const studentsList = document.getElementById("studentsList");
+
+            if (students.length === 0) {
+                studentsList.innerHTML = `
+                    <div class="empty-message">
+                        <p>No students found for your search/filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let list = "";
+
+            students.forEach(student => {
+                list += `
+                    <div class="student-card" onclick="goToProfile(${student.id})">
+                        <img class="student-image" src="${student.imageUrl}" alt="${student.fullName}">
+                        <div class="student-content">
+                            <h3>${student.fullName}</h3>
+                            <p class="department">${student.department}</p>
+                            <p>${student.shortBio}</p>
+                            <span class="skill-badge">${student.mainSkill}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            studentsList.innerHTML = list;
+        }
+
+        function applyFilters() {
+            const searchValue = document.getElementById("searchInput").value.toLowerCase().trim();
+            const departmentValue = document.getElementById("departmentFilter").value;
+
+            const filteredStudents = allStudents.filter(student => {
+                const matchesSearch =
+                    student.fullName.toLowerCase().includes(searchValue) ||
+                    student.mainSkill.toLowerCase().includes(searchValue) ||
+                    student.department.toLowerCase().includes(searchValue);
+
+                const matchesDepartment =
+                    departmentValue === "all" || student.department === departmentValue;
+
+                return matchesSearch && matchesDepartment;
+            });
+
+            renderStudents(filteredStudents);
+        }
+
+        function loadStudents() {
+    fetch("http://localhost:8080/student-portfolio-manager/api/students")
+        .then(res => res.json())
+        .then(data => {
+            allStudents = data;
+            populateDepartmentFilter(allStudents);
+            renderStudents(allStudents);
+        });
+}
+
+        window.onclick = function(event) {
+            const menu = document.getElementById("userMenu");
+            const button = document.querySelector(".user-btn");
+
+            if (menu && button && !button.contains(event.target) && !menu.contains(event.target)) {
+                menu.style.display = "none";
+            }
+        };
+
+        window.onload = function() {
+            loadStudents();
+            loadCurrentUser();
+        };
     </script>
 
 </body>

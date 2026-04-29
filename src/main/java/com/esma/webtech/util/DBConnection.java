@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DBConnection {
 
-    private static final String URL = "jdbc:sqlite:student_directory.db";
+    private static final String URL = "jdbc:sqlite:C:/Users/Esma/dev/tomcat9/student_directory.db";
 
     static {
         try {

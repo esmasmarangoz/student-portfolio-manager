@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Student (Admin)</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fb;
+        }
+
+        .page {
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        input, textarea {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+
+        .page {
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        textarea {
+            resize: none;
+            overflow: hidden;
+        }
+
+        button {
+            background: #2c5cc5;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 15px;
+            text-decoration: none;
+            color: #2c5cc5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <a class="back" href="admin.html">← Back to Admin Panel</a>
+
+    <div class="card">
+        <h2>Edit Student</h2>
+
+        <input id="fullName" placeholder="Full Name">
+        <input id="department" placeholder="Department">
+        <input id="mainSkill" placeholder="Main Skill">
+        <input id="imageUrl" placeholder="Image URL">
+        <textarea id="shortBio" placeholder="Short Bio" oninput="autoGrow(this)"></textarea>
+
+        <button onclick="updateStudent()">Save Changes</button>
+    </div>
+</div>
+
+<script>
+function getStudentId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+}
+
+function autoGrow(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+}
+
+function loadStudent() {
+    const id = getStudentId();
+
+    fetch("http://localhost:8080/student-portfolio-manager/api/admin-student-detail?id=" + id)
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("fullName").value = data.fullName;
+            document.getElementById("department").value = data.department;
+            document.getElementById("mainSkill").value = data.mainSkill;
+            document.getElementById("imageUrl").value = data.imageUrl;
+            document.getElementById("shortBio").value = data.shortBio;
+
+            autoGrow(document.getElementById("shortBio"));
+        } else {
+            alert(data.message);
+        }
+    });
+}
+function updateStudent() {
+    const id = getStudentId();
+
+    fetch("http://localhost:8080/student-portfolio-manager/api/admin-update-student", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body:
+            "id=" + encodeURIComponent(id) +
+            "&fullName=" + encodeURIComponent(document.getElementById("fullName").value.trim()) +
+            "&department=" + encodeURIComponent(document.getElementById("department").value.trim()) +
+            "&mainSkill=" + encodeURIComponent(document.getElementById("mainSkill").value.trim()) +
+            "&imageUrl=" + encodeURIComponent(document.getElementById("imageUrl").value.trim()) +
+            "&shortBio=" + encodeURIComponent(document.getElementById("shortBio").value.trim())
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+
+        if (data.success) {
+            window.location.href = "admin.html";
+        }
+    })
+    .catch(() => {
+        alert("Update request failed.");
+    });
+}
+
+window.onload = loadStudent;
+</script>
+
+</body>
+</html>

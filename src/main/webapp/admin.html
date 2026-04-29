@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .topbar h1 {
+            margin: 0;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #2c5cc5;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background: #2c5cc5;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: #d9534f;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .student-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+
+        .student-row:last-child {
+            border-bottom: none;
+        }
+
+        .student-info h3 {
+            margin: 0 0 6px 0;
+            font-size: 22px;
+        }
+
+        .student-info p {
+            margin: 4px 0;
+            color: #444;
+        }
+
+        .student-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .edit-btn {
+            background: #2c5cc5;
+        }
+
+        .delete-btn {
+            background: #d9534f;
+        }
+
+        .message-box {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="topbar">
+            <div>
+                <a class="back-link" href="index.html">← Back to Home</a>
+                <h1>Admin Panel</h1>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="action-btn" onclick="goToAddStudent()">Add New Student</button>
+                <button class="action-btn logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div id="accessDenied" class="message-box hidden">
+            <h2>Access Denied</h2>
+            <p>You must be logged in as admin to view this page.</p>
+        </div>
+
+        <div id="adminContent" class="hidden">
+            <div class="card">
+                <h2>All Student Profiles</h2>
+                <div id="studentsAdminList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function editStudent(studentId) {
+            window.location.href = "admin-edit-student.html?id=" + studentId;
+       }
+
+        function logout() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/logout", {
+                method: "POST"
+            })
+            .then(res => res.json())
+            .then(() => {
+                window.location.href = "login.html";
+            })
+            .catch(() => {
+                alert("Logout failed.");
+            });
+        }
+
+        function renderStudentsAdmin(students) {
+            const container = document.getElementById("studentsAdminList");
+
+            if (!students.length) {
+                container.innerHTML = "<p>No student profiles found.</p>";
+                return;
+            }
+
+            let html = "";
+
+            students.forEach(student => {
+                html += `
+                    <div class="student-row">
+                        <div class="student-info">
+                            <h3>${student.fullName}</h3>
+                            <p><strong>Department:</strong> ${student.department}</p>
+                            <p><strong>Main Skill:</strong> ${student.mainSkill}</p>
+                            <p>${student.shortBio}</p>
+                        </div>
+
+                        <div class="student-actions">
+                            <button class="action-btn edit-btn" onclick="editStudent(${student.id})">Edit</button>
+                            <button class="action-btn delete-btn" onclick="deleteStudent(${student.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function loadAllStudentsForAdmin() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/students")
+                .then(res => res.json())
+                .then(data => {
+                    renderStudentsAdmin(data);
+                })
+                .catch(() => {
+                    document.getElementById("studentsAdminList").innerHTML = "<p>Failed to load students.</p>";
+                });
+        }
+
+
+        function deleteStudent(studentId) {
+    const confirmed = confirm("Are you sure you want to delete this student?");
+    if (!confirmed) return;
+
+    fetch("http://localhost:8080/student-portfolio-manager/api/delete-student", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "studentId=" + encodeURIComponent(studentId)
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("HTTP " + res.status);
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert("Deleted successfully");
+            loadAllStudentsForAdmin(); // refresh
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        alert("Delete failed: " + err);
+        console.error(err);
+    });
+}
+
+
+function goToAddStudent() {
+    window.location.href = "add-student.html";
+}
+
+
+
+        function checkAdminAccess() {
+            fetch("http://localhost:8080/student-portfolio-manager/api/current-user")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.loggedIn && data.role === "admin") {
+                        document.getElementById("adminContent").classList.remove("hidden");
+                        document.getElementById("accessDenied").classList.add("hidden");
+                        loadAllStudentsForAdmin();
+                    } else {
+                        document.getElementById("accessDenied").classList.remove("hidden");
+                        document.getElementById("adminContent").classList.add("hidden");
+                    }
+                })
+                .catch(() => {
+                    document.getElementById("accessDenied").classList.remove("hidden");
+                    document.getElementById("adminContent").classList.add("hidden");
+                });
+        }
+
+        window.onload = checkAdminAccess;
+    </script>
+</body>
+</html>

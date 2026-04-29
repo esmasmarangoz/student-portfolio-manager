@@ -2,12 +2,129 @@
 <html>
 <head>
     <title>Student Profile</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #2c5cc5;
+            font-weight: bold;
+        }
+
+        .hero {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .hero img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 18px;
+            background: #ddd;
+        }
+
+        .hero-info h1 {
+            margin: 0 0 10px 0;
+            font-size: 34px;
+        }
+
+        .hero-info p {
+            margin: 8px 0;
+            font-size: 17px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e9f0ff;
+            color: #2349a6;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .card p, .card li {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .loading, .error {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page {
+                padding: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="page">
+        <a class="back-link" href="index.html">← Back to Directory</a>
 
-    <h1>Student Profile</h1>
-
-    <p id="profileInfo"></p>
+        <div id="profileContainer" class="loading">
+            <p>Loading profile...</p>
+        </div>
+    </div>
 
     <script>
         function getStudentIdFromUrl() {
@@ -15,14 +132,97 @@
             return params.get("id");
         }
 
-        function showSelectedStudentId() {
+        function loadStudentProfile() {
             const studentId = getStudentIdFromUrl();
-            document.getElementById("profileInfo").innerHTML =
-                "<b>Selected student id:</b> " + studentId;
+
+            if (!studentId) {
+                document.getElementById("profileContainer").innerHTML = `
+                    <div class="error">
+                        <h2>Profile Error</h2>
+                        <p>Student id not found in URL.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            fetch("http://localhost:8080/student-portfolio-manager/api/student-detail?id=" + studentId)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("Student not found");
+                    }
+                    return res.json();
+                })
+                .then(student => {
+                    document.getElementById("profileContainer").innerHTML = `
+                        <div class="hero">
+                            <img src="${student.imageUrl}" alt="${student.fullName}">
+                            <div class="hero-info">
+                                <h1>${student.fullName}</h1>
+                                <p><strong>Department:</strong> ${student.department}</p>
+                                <p><strong>Main Skill:</strong> ${student.mainSkill}</p>
+                                <div class="badge">Student Profile</div>
+                            </div>
+                        </div>
+
+                        <div class="grid">
+                            <div class="card">
+                                <h2>About</h2>
+                                <p>${student.shortBio}</p>
+                            </div>
+
+                            <div class="card">
+                                <h2>Quick Info</h2>
+                                <p><strong>ID:</strong> ${student.id}</p>
+                                <p><strong>Department:</strong> ${student.department}</p>
+                                <p><strong>Main Skill:</strong> ${student.mainSkill}</p>
+                            </div>
+
+                            <div class="card">
+                                <h2>Projects</h2>
+                                <ul class="list">
+                                    <li>Portfolio Web Project</li>
+                                    <li>Student Directory System</li>
+                                    <li>Responsive Frontend Practice</li>
+                                </ul>
+                            </div>
+
+                            <div class="card">
+                                <h2>Contact</h2>
+                                <p>Email information can be added later.</p>
+                                <p>Social links can be added later.</p>
+                            </div>
+
+                            <div class="card">
+                                <h2>Experience</h2>
+                                <ul class="list">
+                                    <li>Web Technologies coursework</li>
+                                    <li>Software development practice</li>
+                                    <li>Student project experience</li>
+                                </ul>
+                            </div>
+
+                            <div class="card">
+                                <h2>Future Sections</h2>
+                                <ul class="list">
+                                    <li>Skills list</li>
+                                    <li>Real projects from database</li>
+                                    <li>Editable profile content</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(() => {
+                    document.getElementById("profileContainer").innerHTML = `
+                        <div class="error">
+                            <h2>Profile Error</h2>
+                            <p>Failed to load student profile.</p>
+                        </div>
+                    `;
+                });
         }
 
-        window.onload = showSelectedStudentId;
+        window.onload = loadStudentProfile;
     </script>
-
 </body>
 </html>
